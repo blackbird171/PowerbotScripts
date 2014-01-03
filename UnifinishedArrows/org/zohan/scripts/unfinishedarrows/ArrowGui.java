@@ -81,8 +81,12 @@ public class ArrowGui extends JFrame {
         startPane.add(lblMakeSureYou);
 
         JLabel lblBeSureTo = new JLabel("Be sure to post proggies and give feed back in the forums");
-        lblBeSureTo.setBounds(10, 83, 409, 14);
+        lblBeSureTo.setBounds(10, 81, 409, 14);
         startPane.add(lblBeSureTo);
+
+        JLabel lblProfits = new JLabel("Estimated Profits: " + uf.getEstimatedProfit() + " per hour");
+        lblProfits.setBounds(10, 111, 409, 14);
+        startPane.add(lblProfits);
 
         JButton btnBegin = new JButton("Begin");
         btnBegin.addActionListener(new ActionListener() {

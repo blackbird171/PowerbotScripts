@@ -14,10 +14,7 @@ import org.zohan.scripts.unfinishedarrows.util.Task;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -27,12 +24,12 @@ import java.util.concurrent.TimeUnit;
         name = "Unfinshed Arrows Fletcher",
         description = "Start with feathers and arrow shafts in your inventory.",
         topic = 0,
-        version = 1.01)
+        version = 1.02)
 public class UnfinishedArrows extends PollingScript implements MessageListener, PaintListener, MouseMotionListener{
 
     public String status = "Loading...";
     public int state = 0;
-    public int afkState = 0;
+    public int afkState = 2;
     public long nextAfk = 0;
 
     private final ArrayList<Task> tasks = new ArrayList<Task>();
@@ -49,11 +46,17 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
 
     @Override
     public void start () {
+        shaftPrice = getPrice(52);
+        featherPrice = getPrice(314);
+        arrowPrice = getPrice(53);
+        log.info("Shaft Price: " + shaftPrice);
+        log.info("Feather Price: " + featherPrice);
+        log.info("Arrow Price: " + arrowPrice);
+        profitPerFletch = arrowPrice - featherPrice - shaftPrice;
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
                     ArrowGui frame = new ArrowGui(UnfinishedArrows.this);
-                    frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -62,10 +65,6 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
 
         tasks.addAll(Arrays.asList(new ClickItems(ctx, this),
                 new ClickWidget(ctx, this)));
-        shaftPrice = getPrice(52);
-        featherPrice = getPrice(314);
-        arrowPrice = getPrice(53);
-        profitPerFletch = arrowPrice - featherPrice - shaftPrice;
         startTime = System.currentTimeMillis();
     }
 
@@ -104,12 +103,12 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
 
         g.setFont(new Font("Tahoma", Font.PLAIN, 14));
         g.drawString("Status: " + status, paintX + 15, paintY + 45);
-        g.drawString("Fletched: " + amountCrafted, paintX + 15, paintY + 60);
-        g.drawString("Fletched/Hour: " + pH(amountCrafted), paintX + 15, paintY + 75);
+        g.drawString("Fletched: " + formatNumber(amountCrafted), paintX + 15, paintY + 60);
+        g.drawString("Fletched/Hour: " + formatNumber(pH(amountCrafted)), paintX + 15, paintY + 75);
 
         int profit = amountCrafted * profitPerFletch;
-        g.drawString("Profit: " + profit, paintX + 15, paintY + 90);
-        g.drawString("Profit: " + pH(profit), paintX + 15, paintY + 105);
+        g.drawString("Profit: " + formatNumber(profit), paintX + 15, paintY + 90);
+        g.drawString("Profit: " + formatNumber(pH(profit)), paintX + 15, paintY + 105);
 
         String runTime = formatTime(getRuntime());
         g.drawString("Runtime: " + runTime, paintX +15, paintY + 120);
@@ -138,6 +137,10 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
         tasks.add(new Afk(ctx, max, min, this));
     }
 
+    public String getEstimatedProfit () {
+        return formatNumber(profitPerFletch * 30000);
+    }
+
     private int pH(int val) {
         return (int) ((val) * 3600000D / (System.currentTimeMillis() - startTime));
     }
@@ -147,6 +150,10 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
                 TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time)),
                 TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
         return hms;
+    }
+
+    private String formatNumber (int i) {
+        return NumberFormat.getIntegerInstance().format(i);
     }
 
     private String afkMessage () {
@@ -162,26 +169,7 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
 
     //Credits to Coma for price look-up method
     private int getPrice(final int id) {
-        try {
-            String price;
-            final URL url = new URL("http://open.tip.it/json/ge_single_item?item=" + id);
-            final URLConnection con = url.openConnection();
-            final BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                if (line.contains("mark_price")) {
-                    price = line.substring(line.indexOf("mark_price") + 13, line.indexOf(",\"daily_gp") - 1);
-                    price = price.replace(",", "");
-                    return Integer.parseInt(price);
-                }
-            }
-        } catch (final Exception ignored) {
-            return -1;
-        }
-        return -1;
+        return GeItem.getProfile(id).getPrice(GeItem.PriceType.CURRENT).getPrice();
     }
-
-
-
 
 }

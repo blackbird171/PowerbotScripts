@@ -5,6 +5,8 @@ import org.powerbot.script.wrappers.Item;
 import org.zohan.scripts.unfinishedarrows.UnfinishedArrows;
 import org.zohan.scripts.unfinishedarrows.util.Task;
 
+import javax.swing.*;
+
 public class ClickItems extends Task{
 
     UnfinishedArrows ufa;
@@ -37,7 +39,8 @@ public class ClickItems extends Task{
                 }
             }
         } else {
-
+            JOptionPane.showMessageDialog(null, "No more supplies found, stopping script.");
+            ufa.getController().stop();
         }
     }
 }

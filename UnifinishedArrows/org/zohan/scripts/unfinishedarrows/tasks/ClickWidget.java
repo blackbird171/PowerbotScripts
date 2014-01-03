@@ -24,7 +24,7 @@ public class ClickWidget extends Task{
     public void execute() {
         if (ctx.widgets.get(WIDGET_ID).getComponent(COMPONENT_ID).click(true)) {
             ufa.status = "Clicking Widget";
-            sleep(400, 1000);
+            sleep(800, 2000);
             ufa.status = "Waiting...";
         }
     }
