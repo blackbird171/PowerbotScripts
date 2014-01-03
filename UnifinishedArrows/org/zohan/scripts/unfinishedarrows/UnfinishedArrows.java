@@ -11,6 +11,7 @@ import org.zohan.scripts.unfinishedarrows.tasks.ClickItems;
 import org.zohan.scripts.unfinishedarrows.tasks.ClickWidget;
 import org.zohan.scripts.unfinishedarrows.util.Task;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
         name = "Unfinshed Arrows Fletcher",
         description = "Start with feathers and arrow shafts in your inventory.",
         topic = 0,
-        version = 1.02)
+        version = 1.03)
 public class UnfinishedArrows extends PollingScript implements MessageListener, PaintListener, MouseMotionListener{
 
     public String status = "Loading...";
@@ -53,7 +54,9 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
         log.info("Feather Price: " + featherPrice);
         log.info("Arrow Price: " + arrowPrice);
         profitPerFletch = arrowPrice - featherPrice - shaftPrice;
-        EventQueue.invokeLater(new Runnable() {
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 try {
                     ArrowGui frame = new ArrowGui(UnfinishedArrows.this);
@@ -167,7 +170,6 @@ public class UnfinishedArrows extends PollingScript implements MessageListener, 
     }
 
 
-    //Credits to Coma for price look-up method
     private int getPrice(final int id) {
         return GeItem.getProfile(id).getPrice(GeItem.PriceType.CURRENT).getPrice();
     }

@@ -22,7 +22,7 @@ public class ArrowGui extends JFrame {
     private JTextField afkMax;
 
     /**
-     * Create the frame.
+     * GUI Created using WindowBuilderPro for Eclipse
      */
     public ArrowGui(final UnfinishedArrows uf) {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -91,15 +91,21 @@ public class ArrowGui extends JFrame {
         JButton btnBegin = new JButton("Begin");
         btnBegin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                if (btnAfk.isSelected()) {
-                    int min = Integer.parseInt(afkMin.getText());
-                    int max = Integer.parseInt(afkMax.getText());
-                    uf.addAfk(min, max);
-                } else {
-                    uf.afkState = 2;
-                }
-                uf.state = 1;
-                dispose();
+                uf.getController().getExecutor().offer(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (btnAfk.isSelected()) {
+                            int min = Integer.parseInt(afkMin.getText());
+                            int max = Integer.parseInt(afkMax.getText());
+                            uf.addAfk(min, max);
+                        } else {
+                            uf.afkState = 2;
+                        }
+                        uf.state = 1;
+                        dispose();
+                    }
+                });
+
             }
         });
         btnBegin.setFont(new Font("Tahoma", Font.PLAIN, 18));
